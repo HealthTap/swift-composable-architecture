@@ -18,7 +18,7 @@ final class StoreTests: XCTestCase {
   }
 
   func testCancellableIsRemovedWhenEffectCompletes() {
-    let scheduler = DispatchQueue.testScheduler
+    let scheduler = DispatchQueue.test
     let effect = Effect<Void, Never>(value: ())
       .delay(for: 1, scheduler: scheduler)
       .eraseToEffect()
@@ -328,23 +328,24 @@ final class StoreTests: XCTestCase {
       environment: ()
     )
 
-    parentStore.ifLet { childStore in
-      let vs = ViewStore(childStore)
+    parentStore
+      .ifLet(then: { childStore in
+        let vs = ViewStore(childStore)
 
-      vs
-        .publisher
-        .sink { _ in }
-        .store(in: &self.cancellables)
+        vs
+          .publisher
+          .sink { _ in }
+          .store(in: &self.cancellables)
 
-      vs.send(false)
-      _ = XCTWaiter.wait(for: [.init()], timeout: 0.1)
-      vs.send(false)
-      _ = XCTWaiter.wait(for: [.init()], timeout: 0.1)
-      vs.send(false)
-      _ = XCTWaiter.wait(for: [.init()], timeout: 0.1)
-      XCTAssertEqual(vs.state, 3)
-    }
-    .store(in: &self.cancellables)
+        vs.send(false)
+        _ = XCTWaiter.wait(for: [.init()], timeout: 0.1)
+        vs.send(false)
+        _ = XCTWaiter.wait(for: [.init()], timeout: 0.1)
+        vs.send(false)
+        _ = XCTWaiter.wait(for: [.init()], timeout: 0.1)
+        XCTAssertEqual(vs.state, 3)
+      })
+      .store(in: &self.cancellables)
   }
 
   func testActionQueuing() {
