@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name         = 'ComposableArchitecture'
-    s.version      = '0.17.0'
+    s.version      = '0.18.0'
     s.license      = { :type => 'MIT', :file => 'LICENSE' }
     s.summary      = 'The Composable Architecture is a library for building applications in a consistent and understandable way.'
     s.homepage     = 'https://github.com/HealthTap/swift-composable-architecture'
