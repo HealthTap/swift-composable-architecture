@@ -11,6 +11,7 @@ Pod::Spec.new do |s|
     s.dependency 'CasePaths'
     s.dependency 'CombineSchedulers'
     s.dependency 'XCTestDynamicOverlay'
+    s.dependency 'IdentifiedCollections'
   
     s.ios.deployment_target = '13.0'
 end
