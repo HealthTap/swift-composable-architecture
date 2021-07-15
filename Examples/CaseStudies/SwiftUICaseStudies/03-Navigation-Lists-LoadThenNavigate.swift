@@ -57,12 +57,12 @@ let loadThenNavigateListReducer =
       case .counter:
         return .none
 
-      case let .setNavigation(selection: .some(id)):
-        for index in state.rows.indices {
-          state.rows[index].isActivityIndicatorVisible = state.rows[index].id == id
+      case let .setNavigation(selection: .some(navigatedId)):
+        for row in state.rows {
+          state.rows[id: row.id]?.isActivityIndicatorVisible = row.id == navigatedId
         }
 
-        return Effect(value: .setNavigationSelectionDelayCompleted(id))
+        return Effect(value: .setNavigationSelectionDelayCompleted(navigatedId))
           .delay(for: 1, scheduler: environment.mainQueue)
           .eraseToEffect()
           .cancellable(id: CancelId(), cancelInFlight: true)
@@ -96,12 +96,14 @@ struct LoadThenNavigateListView: View {
             NavigationLink(
               destination: IfLetStore(
                 self.store.scope(
-                  state: { $0.selection?.value }, action: LoadThenNavigateListAction.counter),
+                  state: \.selection?.value,
+                  action: LoadThenNavigateListAction.counter
+                ),
                 then: CounterView.init(store:)
               ),
               tag: row.id,
               selection: viewStore.binding(
-                get: { $0.selection?.id },
+                get: \.selection?.id,
                 send: LoadThenNavigateListAction.setNavigation(selection:)
               )
             ) {
@@ -135,7 +137,7 @@ struct LoadThenNavigateListView_Previews: PreviewProvider {
           ),
           reducer: loadThenNavigateListReducer,
           environment: LoadThenNavigateListEnvironment(
-            mainQueue: DispatchQueue.main.eraseToAnyScheduler()
+            mainQueue: .main
           )
         )
       )

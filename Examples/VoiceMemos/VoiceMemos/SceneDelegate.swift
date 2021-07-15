@@ -17,10 +17,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
           initialState: VoiceMemosState(),
           reducer: voiceMemosReducer.debug(),
           environment: VoiceMemosEnvironment(
-            audioPlayerClient: .live,
-            audioRecorderClient: .live,
+            audioPlayer: .live,
+            audioRecorder: .live,
             date: Date.init,
-            mainQueue: DispatchQueue.main.eraseToAnyScheduler(),
+            mainQueue: .main,
             openSettings: .fireAndForget {
               UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
             },

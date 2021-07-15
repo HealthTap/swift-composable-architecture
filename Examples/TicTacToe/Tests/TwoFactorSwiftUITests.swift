@@ -9,19 +9,20 @@ import XCTest
 
 class TwoFactorSwiftUITests: XCTestCase {
   func testFlow_Success() {
+    var authenticationClient = AuthenticationClient.failing
+    authenticationClient.twoFactor = { _ in
+      Effect(value: .init(token: "deadbeefdeadbeef", twoFactorRequired: false))
+    }
+
     let store = TestStore(
       initialState: TwoFactorState(token: "deadbeefdeadbeef"),
       reducer: twoFactorReducer,
       environment: TwoFactorEnvironment(
-        authenticationClient: .mock(
-          twoFactor: { _ in
-            Effect(value: .init(token: "deadbeefdeadbeef", twoFactorRequired: false))
-          }
-        ),
-        mainQueue: DispatchQueue.immediateScheduler.eraseToAnyScheduler()
+        authenticationClient: authenticationClient,
+        mainQueue: .immediate
       )
     )
-    .scope(state: { $0.view }, action: TwoFactorAction.view)
+    .scope(state: TwoFactorView.ViewState.init, action: TwoFactorAction.init)
 
     store.environment.authenticationClient.twoFactor = { _ in
       Effect(value: .init(token: "deadbeefdeadbeef", twoFactorRequired: false))
@@ -52,19 +53,18 @@ class TwoFactorSwiftUITests: XCTestCase {
   }
 
   func testFlow_Failure() {
+    var authenticationClient = AuthenticationClient.failing
+    authenticationClient.twoFactor = { _ in Effect(error: .invalidTwoFactor) }
+
     let store = TestStore(
       initialState: TwoFactorState(token: "deadbeefdeadbeef"),
       reducer: twoFactorReducer,
       environment: TwoFactorEnvironment(
-        authenticationClient: .mock(
-          twoFactor: { _ in
-            Effect(error: .invalidTwoFactor)
-          }
-        ),
-        mainQueue: DispatchQueue.immediateScheduler.eraseToAnyScheduler()
+        authenticationClient: authenticationClient,
+        mainQueue: .immediate
       )
     )
-    .scope(state: { $0.view }, action: TwoFactorAction.view)
+    .scope(state: TwoFactorView.ViewState.init, action: TwoFactorAction.init)
 
     store.send(.codeChanged("1234")) {
       $0.code = "1234"

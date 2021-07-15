@@ -2,12 +2,14 @@ import ComposableArchitecture
 import Foundation
 import SwiftUI
 
-struct VoiceMemo: Equatable {
+struct VoiceMemo: Equatable, Identifiable {
   var date: Date
   var duration: TimeInterval
   var mode = Mode.notPlaying
   var title = ""
   var url: URL
+
+  var id: URL { self.url }
 
   enum Mode: Equatable {
     case notPlaying
@@ -129,7 +131,7 @@ struct VoiceMemoView: View {
           TextField(
             "Untitled, \(dateFormatter.string(from: self.viewStore.date))",
             text: self.viewStore.binding(
-              get: { $0.title }, send: VoiceMemoAction.titleTextFieldChanged)
+              get: \.title, send: VoiceMemoAction.titleTextFieldChanged)
           )
 
           Spacer()
